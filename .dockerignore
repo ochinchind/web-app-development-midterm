@@ -1,0 +1,4 @@
+.git
+.env
+core/gen
+*.md

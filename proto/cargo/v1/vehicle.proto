@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package cargo.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "cargo-transport-service/core/gen/cargo/v1;cargov1";
+
+service VehicleService {
+  rpc CreateVehicle(CreateVehicleRequest) returns (Vehicle) {
+    option (google.api.http) = {
+      post: "/v1/vehicles"
+      body: "*"
+    };
+  }
+
+  rpc GetVehicle(GetVehicleRequest) returns (Vehicle) {
+    option (google.api.http) = {
+      get: "/v1/vehicles/{id}"
+    };
+  }
+
+  rpc ListVehicles(google.protobuf.Empty) returns (ListVehiclesResponse) {
+    option (google.api.http) = {
+      get: "/v1/vehicles"
+    };
+  }
+
+  rpc UpdateVehicle(UpdateVehicleRequest) returns (Vehicle) {
+    option (google.api.http) = {
+      put: "/v1/vehicles/{id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteVehicle(DeleteVehicleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/vehicles/{id}"
+    };
+  }
+}
+
+message Vehicle {
+  string id = 1;
+  string owner_id = 2;
+  string plate_number = 3;
+  string model = 4;
+  int32 capacity_kg = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message CreateVehicleRequest {
+  string plate_number = 1;
+  string model = 2;
+  int32 capacity_kg = 3;
+}
+
+message GetVehicleRequest {
+  string id = 1;
+}
+
+message ListVehiclesResponse {
+  repeated Vehicle vehicles = 1;
+}
+
+message UpdateVehicleRequest {
+  string id = 1;
+  string plate_number = 2;
+  string model = 3;
+  int32 capacity_kg = 4;
+}
+
+message DeleteVehicleRequest {
+  string id = 1;
+}

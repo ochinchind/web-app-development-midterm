@@ -1,0 +1,62 @@
+name: cargo-transport-service
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  core:
+    build:
+      context: .
+      dockerfile: core/Dockerfile
+    environment:
+      GRPC_PORT: 9090
+      DB_HOST: postgres 
+      DB_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TTL: ${JWT_TTL:-24h}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [backend] 
+    restart: unless-stopped
+
+  envoy:
+    build:
+      context: .
+      dockerfile: envoy/Dockerfile
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      - core
+    networks: [backend]
+    restart: unless-stopped
+
+  swagger:
+    build:
+      context: .
+      dockerfile: swagger/Dockerfile
+    ports:
+      - "${SWAGGER_PORT:-8081}:8080"
+    networks: [backend]
+    restart: unless-stopped
+
+networks:
+  backend:
+
+volumes:
+  pgdata:

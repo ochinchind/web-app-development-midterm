@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package cargo.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "cargo-transport-service/core/gen/cargo/v1;cargov1";
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (Order) {
+    option (google.api.http) = {
+      post: "/v1/orders"
+      body: "*"
+    };
+  }
+
+  rpc GetOrder(GetOrderRequest) returns (Order) {
+    option (google.api.http) = {
+      get: "/v1/orders/{id}"
+    };
+  }
+
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse) {
+    option (google.api.http) = {
+      get: "/v1/orders"
+    };
+  }
+
+  rpc UpdateOrder(UpdateOrderRequest) returns (Order) {
+    option (google.api.http) = {
+      put: "/v1/orders/{id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteOrder(DeleteOrderRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/orders/{id}"
+    };
+  }
+
+  rpc TakeOrder(TakeOrderRequest) returns (Order) {
+    option (google.api.http) = {
+      post: "/v1/orders/{id}/take"
+      body: "*"
+    };
+  }
+
+  rpc DeliverOrder(DeliverOrderRequest) returns (Order) {
+    option (google.api.http) = {
+      post: "/v1/orders/{id}/deliver"
+      body: "*"
+    };
+  }
+}
+
+enum OrderStatus {
+  UNSPECIFIED = 0;
+  NEW = 1;
+  TAKEN = 2;
+  DELIVERED = 3;
+}
+
+message Order {
+  string id = 1;
+  string created_by = 2;
+  string organization_id = 3;
+  string from_address = 4;
+  string to_address = 5;
+  string cargo_description = 6;
+  int32 weight_kg = 7;
+  OrderStatus status = 8;
+  string driver_id = 9;
+  string vehicle_id = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp taken_at = 13;
+  google.protobuf.Timestamp delivered_at = 14;
+}
+
+message CreateOrderRequest {
+  string from_address = 1;
+  string to_address = 2;
+  string cargo_description = 3;
+  int32 weight_kg = 4;
+}
+
+message GetOrderRequest {
+  string id = 1;
+}
+
+message ListOrdersRequest {
+  OrderStatus status = 1;
+  bool created_by_me = 2;
+  bool taken_by_me = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+message ListOrdersResponse {
+  repeated Order orders = 1;
+}
+
+message UpdateOrderRequest {
+  string id = 1;
+  string from_address = 2;
+  string to_address = 3;
+  string cargo_description = 4;
+  int32 weight_kg = 5;
+}
+
+message DeleteOrderRequest {
+  string id = 1;
+}
+
+message TakeOrderRequest {
+  string id = 1;
+  string vehicle_id = 2;
+}
+
+message DeliverOrderRequest {
+  string id = 1;
+}
