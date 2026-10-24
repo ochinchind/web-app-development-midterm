@@ -16,6 +16,8 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
+    ports:
+      - "5432:5432"
 
   core:
     build:

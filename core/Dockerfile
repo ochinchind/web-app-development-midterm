@@ -1,6 +1,4 @@
-# Build context is the repository root (it needs ./proto and ./core).
 
-# Stage 1: generate Go code from the protos and compile a static binary.
 FROM golang:1.26-bookworm AS build
 RUN apt-get update && apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -19,7 +17,6 @@ RUN mkdir -p gen && protoc -I ../proto \
         ../proto/cargo/v1/*.proto
 RUN CGO_ENABLED=0 go build -o /out/core ./cmd/core
 
-# Stage 2: tiny runtime image.
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/core /core
 EXPOSE 9090
